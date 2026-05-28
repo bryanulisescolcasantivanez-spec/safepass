@@ -8,24 +8,25 @@ import {
   Button,
 } from "react-native";
 
-import StrengthMeter from "../src/components/StrengthMeter";
-import FeedbackText from "../src/components/FeedbackText";
+import StrengthMeter from "../components/StrengthMeter";
+import FeedbackText from "../components/FeedbackText";
 
 import {
   extractFeatures,
-} from "../src/ai/featureExtractor";
+} from "../ai/featureExtractor";
 
 import {
   calculateEntropy,
-} from "../src/utils/entropy";
+} from "../utils/entropy";
 
 import {
   classifyPassword,
-} from "../src/ai/classifier";
+} from "../ai/classifier";
 
 import {
   generatePassword,
-} from "../src/ai/passwordGenerator";
+} from "../ai/passwordGenerator";
+
 
 export default function HomeScreen() {
 
