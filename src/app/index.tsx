@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import {
   View,
@@ -6,7 +6,10 @@ import {
   TextInput,
   StyleSheet,
   Button,
+  TouchableOpacity,
 } from "react-native";
+
+import { Ionicons } from "@expo/vector-icons";
 
 import StrengthMeter from "../components/StrengthMeter";
 import FeedbackText from "../components/FeedbackText";
@@ -32,6 +35,9 @@ export default function HomeScreen() {
 
   const [password, setPassword] =
     useState("");
+  
+  const [showPassword, setShowPassword] =
+  useState(false);  
 
   const [result, setResult] =
     useState<any>(null);
@@ -75,14 +81,27 @@ export default function HomeScreen() {
         de Contraseñas
       </Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Escribe tu contraseña"
-        placeholderTextColor="#777"
-        secureTextEntry
-        value={password}
-        onChangeText={analyzePassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Escribe tu contraseña"
+          placeholderTextColor="#777"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={analyzePassword}
+        />
+
+        <TouchableOpacity
+          style={styles.eyeIcon}
+          onPress={() => setShowPassword(!showPassword)}
+        >
+          <Ionicons
+            name={showPassword ? "eye-off" : "eye"}
+            size={24}
+            color="#aaa"
+          />
+        </TouchableOpacity>
+      </View>
 
       <StrengthMeter result={result} />
 
@@ -124,12 +143,22 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#1E1E1E",
-    color: "#fff",
-    padding: 15,
-    borderRadius: 12,
-    fontSize: 16,
+  flex: 1,
+  color: "#fff",
+  padding: 15,
+  fontSize: 16,
   },
+
+  passwordContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#1E1E1E",
+  borderRadius: 12,
+},
+
+eyeIcon: {
+  paddingHorizontal: 15,
+},
 
   buttonContainer: {
     marginTop: 30,
