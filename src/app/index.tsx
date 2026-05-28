@@ -1,98 +1,137 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from "react";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Button,
+} from "react-native";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import StrengthMeter from "../src/components/StrengthMeter";
+import FeedbackText from "../src/components/FeedbackText";
+
+import {
+  extractFeatures,
+} from "../src/ai/featureExtractor";
+
+import {
+  calculateEntropy,
+} from "../src/utils/entropy";
+
+import {
+  classifyPassword,
+} from "../src/ai/classifier";
+
+import {
+  generatePassword,
+} from "../src/ai/passwordGenerator";
 
 export default function HomeScreen() {
+
+  const [password, setPassword] =
+    useState("");
+
+  const [result, setResult] =
+    useState<any>(null);
+
+  function analyzePassword(text: string) {
+
+    setPassword(text);
+
+    const features =
+      extractFeatures(text);
+
+    const entropy =
+      calculateEntropy(text);
+
+    const classification =
+      classifyPassword(
+        features,
+        entropy
+      );
+
+    setResult(classification);
+  }
+
+  function handleGeneratePassword() {
+
+    const newPassword =
+      generatePassword(16);
+
+    analyzePassword(newPassword);
+  }
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <View style={styles.container}>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <Text style={styles.title}>
+        🔐 SafePass
+      </Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+      <Text style={styles.subtitle}>
+        Analizador Inteligente
+        de Contraseñas
+      </Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <TextInput
+        style={styles.input}
+        placeholder="Escribe tu contraseña"
+        placeholderTextColor="#777"
+        secureTextEntry
+        value={password}
+        onChangeText={analyzePassword}
+      />
+
+      <StrengthMeter result={result} />
+
+      <FeedbackText result={result} />
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Generar Contraseña Segura"
+          onPress={handleGeneratePassword}
+        />
+      </View>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#121212",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
+
   title: {
-    textAlign: 'center',
+    fontSize: 36,
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
   },
-  code: {
-    textTransform: 'uppercase',
+
+  subtitle: {
+    color: "#aaa",
+    textAlign: "center",
+    marginBottom: 30,
+    fontSize: 16,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  input: {
+    backgroundColor: "#1E1E1E",
+    color: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    fontSize: 16,
   },
+
+  buttonContainer: {
+    marginTop: 30,
+  },
+
 });
